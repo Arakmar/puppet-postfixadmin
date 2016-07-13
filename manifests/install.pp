@@ -8,7 +8,6 @@ class postfixadmin::install inherits postfixadmin {
   $target = "${postfixadmin::install_dir}/postfixadmin-${postfixadmin::version}"
   # $download_url = "http://downloads.sourceforge.net/project/postfixadmin/postfixadmin/${archive}/${archive}.tar.gz"
   $download_url = "http://ufpr.dl.sourceforge.net/project/postfixadmin/postfixadmin/${archive}/${archive}.tar.gz"
-  notify {"THOMAS: $download_url": }
 
   ensure_resource('file', [
     $postfixadmin::install_dir,
