@@ -4,6 +4,14 @@
 #
 class postfixadmin::install inherits postfixadmin {
 
+  package { [
+    'php-mbstring',
+    'php-imap'
+  ]:
+    ensure => installed,
+    notify => Service['httpd'],
+  }
+
   $archive = "postfixadmin-${postfixadmin::version}"
   $target = "${postfixadmin::install_dir}/postfixadmin-${postfixadmin::version}"
   # $download_url = "http://downloads.sourceforge.net/project/postfixadmin/postfixadmin/${archive}/${archive}.tar.gz"
