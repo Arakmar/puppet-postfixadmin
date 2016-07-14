@@ -1,3 +1,5 @@
+-- created from database version 740 for postfixadmin 2.3.7
+--
 -- MySQL dump 10.14  Distrib 5.5.47-MariaDB, for Linux (x86_64)
 --
 -- Host: localhost    Database: postfix
