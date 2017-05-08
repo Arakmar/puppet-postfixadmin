@@ -5,11 +5,21 @@
 
 class postfixadmin::config inherits postfixadmin {
 
-  $application_dir = $postfixadmin::install::target
-  $config_file = "${application_dir}/config.inc.php"
+  file { $postfixadmin::params::config_dir:
+    ensure => 'directory',
+    purge => true,
+    recurse => true,
+    force => true,
+    owner => 'root',
+    group => 'root',
+    mode => '0755',
+  }
 
-  file { $config_file:
+  file { "${postfixadmin::params::config_dir}/config.inc.php":
     ensure  => present,
-    content => template('postfixadmin/config.inc.php.erb')
+    content => template('postfixadmin/config.inc.php.erb'),
+    mode => '0640',
+    owner => root,
+    group => $postfixadmin::config_file_group,
   }
 }

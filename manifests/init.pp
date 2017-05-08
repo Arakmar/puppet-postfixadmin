@@ -54,6 +54,7 @@
 #   `pass`.
 class postfixadmin (
   $package                         = $postfixadmin::params::package,
+  $config_file_group               = $postfixadmin::params::config_file_group,
 
   $db_dsn                          = undef,
   $db_type                         = 'mysql',
@@ -93,6 +94,7 @@ class postfixadmin (
   $show_footer_text                = 'YES',
 ) inherits postfixadmin::params {
   validate_string($package)
+  validate_string($config_file_group)
   validate_string($db_type)
   validate_string($db_name)
   validate_string($db_host)

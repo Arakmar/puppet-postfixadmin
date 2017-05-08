@@ -4,4 +4,6 @@
 #
 class postfixadmin::params {
   $package = 'postfixadmin'
+  $config_dir = '/etc/postfixadmin'
+  $config_file_group = 'www-data'
 }
