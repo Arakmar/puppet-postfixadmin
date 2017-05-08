@@ -100,6 +100,5 @@ class postfixadmin (
   validate_string($db_password)
 
   class { 'postfixadmin::install': } ->
-  class { 'postfixadmin::config': } ~>
-  class { 'postfixadmin::service': }
+  class { 'postfixadmin::config': }
 }
