@@ -89,6 +89,7 @@ class postfixadmin (
   ],
   $vacation                        = 'NO',
   $vacation_domain                 = 'autoreply.change-this-to-your.domain.tld',
+  $alias_control                   = 'NO',
   $alias_control_admin             = 'NO',
   $special_alias_control           = 'NO',
   $show_footer_text                = 'YES',
