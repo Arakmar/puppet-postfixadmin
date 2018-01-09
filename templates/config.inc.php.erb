@@ -9,10 +9,9 @@
  * This source file is subject to the GPL license that is bundled with  
  * this package in the file LICENSE.TXT. 
  * 
- * Further details on the project are available at : 
- *     http://www.postfixadmin.com or http://postfixadmin.sf.net 
- * 
- * @version $Id: config.inc.php 935 2011-01-02 21:33:13Z christian_boltz $ 
+ * Further details on the project are available at http://postfixadmin.sf.net
+ *
+ * @version $Id: config.inc.php 1876 2016-10-20 21:26:13Z christian_boltz $
  * @license GNU GPL v2 or later. 
  * 
  * File: config.inc.php
@@ -37,11 +36,13 @@ $CONF['configured'] = false;
 // on submission it will be echoed out to you as a hashed value.
 $CONF['setup_password'] = '<%= @password_hash %>';
 
+// /!\ Legacy option - pre 3.0
 // Postfix Admin Path
 // Set the location of your Postfix Admin installation here.
 // YOU MUST ENTER THE COMPLETE URL e.g. http://domain.tld/postfixadmin
 $CONF['postfix_admin_url'] = '<%= @postfix_admin_url %>';
 
+// /!\ Legacy option - pre 3.0
 // shouldn't need changing.
 $CONF['postfix_admin_path'] = dirname(__FILE__);
 
@@ -49,10 +50,54 @@ $CONF['postfix_admin_path'] = dirname(__FILE__);
 // Language files are located in './languages', change as required..
 $CONF['default_language'] = 'en';
 
+// Hook to override or add translations in $PALANG
+// Set to the function name you want to use as hook function (see language_hook example function below)
+$CONF['language_hook'] = '';
+
+/*
+    language_hook example function
+
+    Called if $CONF['language_hook'] == '<name_of_the_function>'
+    Allows to add or override $PALANG interface texts.
+
+    If you add new texts, please always prefix them with 'x_' (for example
+    $PALANG['x_mytext'] = 'foo') to avoid they clash with texts that might be
+    added to languages/*.lang in future versions of PostfixAdmin.
+
+    Please also make sure that all your added texts are included in all
+    sections - that includes all 'case "XY":' sections and the 'default:'
+    section (for users that don't have any of the languages specified
+    in the 'case "XY":' section).
+    Usually the 'default:' section should contain english text.
+
+    If you modify an existing text/translation, please consider to report it
+    to the bugtracker on http://sf.net/projects/postfixadmin so that all users
+    can benefit from the corrected text/translation.
+
+    Returns: modified $PALANG array
+*/
+/*
+function language_hook($PALANG, $language) {
+    switch ($language) {
+        case "de":
+            $PALANG['x_whatever'] = 'foo';
+            break;
+        case "fr":
+            $PALANG['x_whatever'] = 'bar';
+            break;
+        default:
+            $PALANG['x_whatever'] = 'foobar';
+    }
+
+    return $PALANG;
+}
+*/
+
 // Database Config
 // mysql = MySQL 3.23 and 4.0, 4.1 or 5
-// mysqli = MySQL 4.1+ 
+// mysqli = MySQL 4.1+ or MariaDB
 // pgsql = PostgreSQL
+// sqlite = SQLite 3
 $CONF['database_type'] = '<%= @db_type %>';
 $CONF['database_host'] = '<%= @db_host %>';
 $CONF['database_user'] = '<%= @db_username %>';
@@ -63,6 +108,8 @@ $CONF['database_name'] = '<%= @db_name %>';
 // If you need to specify a different port for POSTGRESQL database connection
 //   uncomment and change the following
 // $CONF['database_port'] = '5432';
+// If sqlite is used, specify the database file path:
+//   $CONF['database_name'] = '/etc/postfix/sqlite/postfixadmin.db'
 
 
 // Here, if you need, you can customize table names.
@@ -115,6 +162,23 @@ $CONF['authlib_default_flavor'] = 'md5raw';
 // If you use the dovecot encryption method: where is the dovecotpw binary located?
 $CONF['dovecotpw'] = "/usr/bin/doveadm pw";
 
+// Password validation
+// New/changed passwords will be validated using all regular expressions in the array.
+// If a password doesn't match one of the regular expressions, the corresponding
+// error message from $PALANG (see languages/*) will be displayed.
+// See http://de3.php.net/manual/en/reference.pcre.pattern.syntax.php for details
+// about the regular expression syntax.
+// If you need custom error messages, you can add them using $CONF['language_hook'].
+// If a $PALANG text contains a %s, you can add its value after the $PALANG key
+// (separated with a space).
+$CONF['password_validation'] = array(
+#    '/regular expression/' => '$PALANG key (optional: + parameter)',
+    '/.{5}/'                => 'password_too_short 5',      # minimum length 5 characters
+    '/([a-zA-Z].*){3}/'     => 'password_no_characters 3',  # must contain at least 3 characters
+    '/([0-9].*){2}/'        => 'password_no_digits 2',      # must contain at least 2 digits
+);
+
+// /!\ Legacy option - pre 3.0
 // Minimum length required for passwords. Postfixadmin will not
 // allow users to set passwords which are shorter than this value.
 $CONF['min_password_length'] = <%= @min_password_length %>;
@@ -184,16 +248,60 @@ function maildir_name_hook($domain, $user) {
 }
 */
 
+/*
+    *_struct_hook - change, add or remove fields
+
+    If you need additional fields or want to change or remove existing fields,
+    you can write a hook function to modify $struct in the *Handler classes.
+
+    The edit form will automatically be updated according to the modified
+    $struct. The list page is not yet updated automatically.
+
+    You can define one hook function per class, named like the primary database
+    table of that class.
+    The hook function is called with $struct as parameter and must return the
+    modified $struct.
+
+    Note: Adding a field to $struct adds the handling of this field in
+    PostfixAdmin, but it does not create it in the database. You have to do
+    that yourself.
+    Please follow the naming policy for custom database fields and tables on
+    https://sourceforge.net/p/postfixadmin/wiki/Custom_fields/
+    to avoid clashes with future versions of PostfixAdmin.
+
+    See initStruct() in the *Handler class for the default $struct.
+    See pacol() in functions.inc.php for the available flags on each column.
+
+    Example:
+
+    function x_struct_admin_modify($struct) {
+        $struct['superadmin']['editable'] = 0;          # make the 'superadmin' flag read-only
+        $struct['superadmin']['display_in_form'] = 0;   # don't display the 'superadmin' flag in edit form
+        $struct['x_newfield'] = pacol( [...] );        # additional field 'x_newfield'
+        return $struct; # important!
+    }
+    $CONF['admin_struct_hook'] = 'x_struct_admin_modify';
+*/
+$CONF['admin_struct_hook']          = '';
+$CONF['domain_struct_hook']         = '';
+$CONF['alias_struct_hook']          = '';
+$CONF['mailbox_struct_hook']        = '';
+$CONF['alias_domain_struct_hook']   = '';
+$CONF['fetchmail_struct_hook']      = '';
+
 
 // Default Domain Values
 // Specify your default values below. Quota in MB.
 $CONF['aliases'] = '<%= @aliases %>';
 $CONF['mailboxes'] = '<%= @mailboxes %>';
 $CONF['maxquota'] = '<%= @maxquota %>';
+$CONF['domain_quota_default'] = '<%= @domain_quota_default %>';
 
 // Quota
 // When you want to enforce quota for your mailbox users set this to 'YES'.
 $CONF['quota'] = '<%= @quota %>';
+// If you want to enforce domain-level quotas set this to 'YES'.
+$CONF['domain_quota'] = 'YES';
 // You can either use '1024000' or '1048576'
 $CONF['quota_multiplier'] = '1024000';
 
@@ -228,6 +336,23 @@ $CONF['vacation_control'] ='YES';
 // Vacation Control for admins
 // Set to 'YES' if your domain admins should be able to edit user vacation.
 $CONF['vacation_control_admin'] = 'YES';
+
+// ReplyType options
+// If you want to define additional reply options put them in array below.
+// The array has the format   seconds between replies => $PALANG text
+// Special values for seconds are:
+// 0 => only reply to the first mail while on vacation
+// 1 => reply on every mail
+$CONF['vacation_choice_of_reply'] = array (
+   0 => 'reply_once',        // Sends only Once the message during Out of Office
+   # considered annoying - only send a reply on every mail if you really need it
+   # 1 => 'reply_every_mail',       // Reply on every email
+   60*60 *24*7 => 'reply_once_per_week'        // Reply if last autoreply was at least a week ago
+);
+
+//
+// End Vacation Stuff.
+//
 
 // Alias Control
 // Postfix Admin inserts an alias in the alias table for every mailbox it creates.
@@ -285,6 +410,7 @@ $CONF['fetchmail_extra_options'] = 'NO';
 $CONF['show_header_text'] = 'NO';
 $CONF['header_text'] = ':: Postfix Admin ::';
 
+// /!\ Legacy option - pre 3.0
 // link to display under 'Main' menu when logged in as a user.
 $CONF['user_footer_link'] = "http://change-this-to-your.domain.tld/main";
 
@@ -294,6 +420,13 @@ $CONF['user_footer_link'] = "http://change-this-to-your.domain.tld/main";
 $CONF['show_footer_text'] = '<%= @show_footer_text %>';
 $CONF['footer_text'] = 'Return to change-this-to-your.domain.tld';
 $CONF['footer_link'] = 'http://change-this-to-your.domain.tld';
+
+// MOTD ("Motto of the day")
+// You can display a MOTD below the menu on all pages.
+// This can be configured seperately for users, domain admins and superadmins
+$CONF['motd_user'] = '';
+$CONF['motd_admin'] = '';
+$CONF['motd_superadmin'] = '';
 
 // Welcome Message
 // This message is send to every newly created mailbox.

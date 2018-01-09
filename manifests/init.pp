@@ -80,6 +80,7 @@ class postfixadmin (
   $aliases                         = '10',
   $mailboxes                       = '10',
   $maxquota                        = '10',
+  $domain_quota_default            = '2048',
   $quota                           = 'NO',
   $transport                       = 'NO',
   $transport_options               = [
