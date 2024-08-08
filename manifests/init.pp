@@ -53,15 +53,15 @@
 #   Set the password used to authenticate the database user. The module will encode any special characters. Defaults to
 #   `pass`.
 class postfixadmin (
-  $package                         = $postfixadmin::params::package,
-  $config_file_group               = $postfixadmin::params::config_file_group,
+  String $package                         = $postfixadmin::params::package,
+  String $config_file_group               = $postfixadmin::params::config_file_group,
 
   $db_dsn                          = undef,
-  $db_type                         = 'mysql',
-  $db_name                         = 'postfix',
-  $db_host                         = 'localhost',
-  $db_username                     = 'postfix',
-  $db_password                     = 'postfixadmin',
+  String $db_type                         = 'mysql',
+  String $db_name                         = 'postfix',
+  String $db_host                         = 'localhost',
+  String $db_username                     = 'postfix',
+  String $db_password                     = 'postfixadmin',
 
   $password_hash                   = 'changeme',
   $postfix_admin_url               = '',
@@ -95,14 +95,6 @@ class postfixadmin (
   $special_alias_control           = 'NO',
   $show_footer_text                = 'YES',
 ) inherits postfixadmin::params {
-  validate_string($package)
-  validate_string($config_file_group)
-  validate_string($db_type)
-  validate_string($db_name)
-  validate_string($db_host)
-  validate_string($db_username)
-  validate_string($db_password)
-
   class { 'postfixadmin::install': } ->
   class { 'postfixadmin::config': }
 }
