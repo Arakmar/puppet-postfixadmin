@@ -60,6 +60,7 @@ class postfixadmin (
   String $db_type                         = 'mysql',
   String $db_name                         = 'postfix',
   String $db_host                         = 'localhost',
+  Integer $db_port                         = 3306,
   String $db_username                     = 'postfix',
   String $db_password                     = 'postfixadmin',
 
