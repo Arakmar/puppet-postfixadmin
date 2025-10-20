@@ -2,24 +2,24 @@
 /* this file is managed by puppet based on
  * postfixadmin/templates/config.inc.php.erb
  */
-/** 
- * Postfix Admin 
- * 
- * LICENSE 
- * This source file is subject to the GPL license that is bundled with  
- * this package in the file LICENSE.TXT. 
- * 
+/**
+ * Postfix Admin
+ *
+ * LICENSE
+ * This source file is subject to the GPL license that is bundled with
+ * this package in the file LICENSE.TXT.
+ *
  * Further details on the project are available at http://postfixadmin.sf.net
  *
  * @version $Id: config.inc.php 1876 2016-10-20 21:26:13Z christian_boltz $
- * @license GNU GPL v2 or later. 
- * 
+ * @license GNU GPL v2 or later.
+ *
  * File: config.inc.php
  * Contains configuration options.
  */
 
 /*****************************************************************
- *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+ *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * You have to set $CONF['configured'] = true; before the
  * application will run!
  * Doing this implies you have changed this file as required.
@@ -196,7 +196,7 @@ $CONF['smtp_client'] = '';
 // - php_crypt PREFIX: hash has specified prefix - example: php_crypt:SHA512::{SHA512-CRYPT}
 //
 // sha512.b64 - {SHA512-CRYPT.B64} (base64 encoded sha512) (no dovecot dependency; should support migration from md5crypt)
-$CONF['encrypt'] = 'md5crypt';
+$CONF['encrypt'] = '<%= @password_encryption %>';
 
 // In what flavor should courier-authlib style passwords be enrypted?
 // md5 = {md5} + base64 encoded md5 hash
@@ -275,13 +275,13 @@ $CONF['default_aliases'] = array (
 //   NO:  /usr/local/virtual/username@domain.tld
 $CONF['domain_path'] = '<%= @domain_path %>';
 // If you don't want to have the domain in your mailbox set this to 'NO'.
-// Examples: 
+// Examples:
 //   YES: /usr/local/virtual/domain.tld/username@domain.tld
 //   NO:  /usr/local/virtual/domain.tld/username
 // Note: If $CONF['domain_path'] is set to NO, this setting will be forced to YES.
 $CONF['domain_in_mailbox'] = '<%= @domain_in_mailbox %>';
 // If you want to define your own function to generate a maildir path set this to the name of the function.
-// Notes: 
+// Notes:
 //   - this configuration directive will override both domain_path and domain_in_mailbox
 //   - the maildir_name_hook() function example is present below, commented out
 //   - if the function does not exist the program will default to the above domain_path and domain_in_mailbox settings
@@ -289,7 +289,7 @@ $CONF['maildir_name_hook'] = 'NO';
 
 /*
     maildir_name_hook example function
- 
+
     Called when creating a mailbox if $CONF['maildir_name_hook'] == '<name_of_the_function>'
     - allows for customized maildir paths determined by a custom function
     - the example below will prepend a single-character directory to the
@@ -448,7 +448,7 @@ $CONF['special_alias_control'] = '<%= @special_alias_control %>';
 $CONF['alias_goto_limit'] = '0';
 
 // Alias Domains
-// Alias domains allow to "mirror" aliases and mailboxes to another domain. This makes 
+// Alias domains allow to "mirror" aliases and mailboxes to another domain. This makes
 // configuration easier if you need the same set of aliases on multiple domains, but
 // also requires postfix to do more database queries.
 // Note: If you update from 2.2.x or earlier, you will have to update your postfix configuration.
@@ -707,7 +707,7 @@ $CONF['theme_css'] = 'css/bootstrap.css';
 $CONF['theme_custom_css'] = '';
 
 // XMLRPC Interface.
-// This should be only of use if you wish to use e.g the 
+// This should be only of use if you wish to use e.g the
 // Postfixadmin-Squirrelmail package
 //  change to boolean true to enable xmlrpc
 $CONF['xmlrpc_enabled'] = false;

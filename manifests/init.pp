@@ -65,6 +65,7 @@ class postfixadmin (
   String $db_password                     = 'postfixadmin',
 
   $password_hash                   = 'changeme',
+  $password_encryption             = 'md5crypt',
   $postfix_admin_url               = '',
   $admin_email                     = 'postmaster@change-this-to-your.domain.tld',
   $min_password_length             = '5',
